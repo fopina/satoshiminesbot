@@ -1,0 +1,2 @@
+# satoshiminesbot
+Just because
