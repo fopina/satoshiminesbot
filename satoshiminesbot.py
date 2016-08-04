@@ -29,7 +29,6 @@ class SMB(object):
 
 class SMBGame(object):
     def __init__(self, info):
-        # {u'status': u'success', u'betNumber': u'0', u'stake': 3e-05, u'gametype': u'practice', u'next': 3e-06, u'secret': u'xxx', u'game_hash': u'xxx', u'num_mines': 3, u'id': 111, u'bet': 3e-05}
         self._info = info
         self._board = range(1, 26)
         self._url = (None, None)
@@ -109,7 +108,7 @@ if __name__ == '__main__':
     import sys
 
     if len(sys.argv) < 5:
-        sys.stderr.write('Usage: %s PLAYER_HASH BET_IN_BITS NUMBER_OF_MINES NUMBER_OF_GUESSES\n')
+        sys.stderr.write('Usage: %s PLAYER_HASH BET_IN_BITS NUMBER_OF_MINES NUMBER_OF_GUESSES\n' % __file__)
         sys.exit(1)
 
     main(*sys.argv[1:5])
