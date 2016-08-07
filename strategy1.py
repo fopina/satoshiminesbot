@@ -22,7 +22,8 @@ Wallet: 1GagBVNaAEPQPJw5rZYnNaES4yv9btMNuT
 kkthnx
 '''
 
-from satoshiminesbot import SMB
+from satoshiminesbot
+import time
 
 MINES = 1
 ORIGINAL_BET = 30
@@ -31,15 +32,26 @@ MULTIPLIER = 25.63
 
 
 def main(player_hash):
-    bot = SMB(player_hash)
+    bot = satoshiminesbot.SMB(player_hash)
     wins, losses, balance = 0, 0, 0
 
     bet = ORIGINAL_BET
 
+    play_fail = False
+
     try:
         while True:
             done = True
-            g = bot.new_game(bet, MINES)
+            try:
+                g = bot.new_game(bet, MINES)
+                play_fail = False
+            except satoshiminesbot.SMBError:
+                if play_fail:
+                    raise
+                # probably because of rate limit
+                time.sleep(1)
+                play_fail = True
+                continue
             bits = 0
             for guess in xrange(GUESSES):
                 f = g.play()
