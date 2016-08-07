@@ -37,21 +37,10 @@ def main(player_hash):
 
     bet = ORIGINAL_BET
 
-    play_fail = False
-
     try:
         while True:
             done = True
-            try:
-                g = bot.new_game(bet, MINES)
-                play_fail = False
-            except satoshiminesbot.SMBError:
-                if play_fail:
-                    raise
-                # probably because of rate limit
-                time.sleep(1)
-                play_fail = True
-                continue
+            g = bot.new_game(bet, MINES)
             bits = 0
             for guess in xrange(GUESSES):
                 f = g.play()
@@ -74,6 +63,8 @@ def main(player_hash):
                 balance += bits
                 wins += 1
                 print('+ %s bits - BAL: %d - %s' % (bits, balance, g.url()))
+            # let's give the server a break...
+            time.sleep(2)
     except KeyboardInterrupt:
         print('Stopped')
         print('Session balance: %d - %d wins - %d losses' % (balance, wins, losses))
