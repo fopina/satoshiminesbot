@@ -22,7 +22,7 @@ Wallet: 1GagBVNaAEPQPJw5rZYnNaES4yv9btMNuT
 kkthnx
 '''
 
-from satoshiminesbot
+import satoshiminesbot
 import time
 
 MINES = 1
