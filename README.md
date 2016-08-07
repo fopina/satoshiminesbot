@@ -25,6 +25,9 @@ $ ./satoshiminesbot.py 767ca91bec38197612349e3867dbbb914f6bf70b 30 3 4
 Session balance: -6 - 3 wins - 2 losses
 ```
 
+The default _strategy_ is _no strategy_ as it always bets the same. That means you have 1/25 chance of losing 30 bits and you only make 1 bit per win. If you make the math, that means you make 24 and then lose 30, so _sure win_ right?!
+
+But it's easy to implement your own _SureWin_ strategy such as [strategy1](strategy1.py). That is an obvious win (RIGHT?!)!
 
 Feel free to start a new game (even if you have one) with my [affiliate link](https://satoshimines.com/a/Js6e) so I can make something with your losses.
 
