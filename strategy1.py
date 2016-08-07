@@ -17,6 +17,9 @@ Odds of that? 1/25^4 = 0.00025%, yup, really low, but you only make 1 bit per su
 how many games will you be playing?!
 
 Seriously, just send me some of those bitcoins, result is the same
+Wallet: 1GagBVNaAEPQPJw5rZYnNaES4yv9btMNuT
+
+kkthnx
 '''
 
 from satoshiminesbot import SMB
