@@ -12,9 +12,9 @@ class SMB(object):
 
     def new_game(self, bits_bet, num_mines):
         if not (30 <= bits_bet <= 1000000):
-            raise SMBError('invalid bet')
+            raise SMBError(1, 'invalid bet')
         if num_mines not in [1, 3, 5, 24]:
-            raise SMBError('invalid number of mines')
+            raise SMBError(2, 'invalid number of mines')
 
         r = requests.post('https://www.satoshimines.com/action/newgame.php', data={
             'bd': 1190,
@@ -23,7 +23,7 @@ class SMB(object):
             'num_mines': num_mines
         }).json()
         if r['status'] != 'success':
-            raise SMBError('failed to start game')
+            raise SMBError(99, r)
         return SMBGame(r)
 
 
@@ -39,7 +39,7 @@ class SMBGame(object):
             self._board.remove(guess)
         else:
             if guess not in self._board:
-                raise SMBError('invalid guess')
+                raise SMBError(3, 'invalid guess')
 
         r = requests.post('https://www.satoshimines.com/action/checkboard.php', data={
             'game_hash': self._info['game_hash'],
@@ -48,7 +48,7 @@ class SMBGame(object):
         }).json()
 
         if r['status'] != 'success':
-            raise SMBError('failed to play')
+            raise SMBError(99, r)
 
         self._url = (r.get('game_id'), r.get('random_string'))
         return r
@@ -59,7 +59,7 @@ class SMBGame(object):
         }).json()
 
         if r['status'] != 'success':
-            raise SMBError('failed to cashout')
+            raise SMBError(99, r)
 
         self._url = (r.get('game_id'), r.get('random_string'))
         return r
