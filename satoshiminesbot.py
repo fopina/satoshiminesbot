@@ -3,12 +3,19 @@
 import requests
 from decimal import Decimal
 from random import choice
+import re
 
 
 class SMB(object):
     def __init__(self, player_hash):
         self._hash = player_hash
         self._game = None
+        self.balance = 0
+        self.refresh_balance()
+
+    def refresh_balance(self):
+        r = requests.get('https://satoshimines.com/play/%s/' % self._hash)
+        self.balance = int(re.findall('<span class="num" title=".*?">([0-9,]+)</span>', r.content)[0].replace(',', ''))
 
     def new_game(self, bits_bet, num_mines):
         if not (30 <= bits_bet <= 1000000):
