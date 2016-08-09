@@ -14,8 +14,8 @@ class SMB(object):
         self.refresh_balance()
 
     def refresh_balance(self):
-        r = requests.get('https://satoshimines.com/play/%s/' % self._hash)
-        self.balance = int(re.findall('<span class="num" title=".*?">([0-9,]+)</span>', r.content)[0].replace(',', ''))
+        r = self.get('play/%s/' % self._hash, to_json=False)
+        self.balance = int(re.findall('<span class="num" title=".*?">([0-9,]+)</span>', r)[0].replace(',', ''))
 
     def new_game(self, bits_bet, num_mines):
         if not (30 <= bits_bet <= 1000000):
@@ -23,19 +23,37 @@ class SMB(object):
         if num_mines not in [1, 3, 5, 24]:
             raise SMBError(2, 'invalid number of mines')
 
-        r = requests.post('https://www.satoshimines.com/action/newgame.php', data={
+        r = self.post('action/newgame.php', {
             'bd': 1190,
             'player_hash': self._hash,
             'bet': Decimal(bits_bet) / 1000000,
             'num_mines': num_mines
-        }).json()
+        })
         if r['status'] != 'success':
             raise SMBError(99, r)
-        return SMBGame(r)
+        return SMBGame(self, r)
+
+    def get(self, url, to_json=True):
+        try:
+            r = requests.get('https://www.satoshimines.com/%s' % url)
+        except requests.exceptions.ConnectionError as e:
+            raise SMBError(90, e)
+        if to_json:
+            return r.json()
+        else:
+            return r.content
+
+    def post(self, url, data):
+        try:
+            r = requests.post('https://www.satoshimines.com/%s' % url, data)
+        except requests.exceptions.ConnectionError as e:
+            raise SMBError(90, e)
+        return r.json()
 
 
 class SMBGame(object):
-    def __init__(self, info):
+    def __init__(self, bot, info):
+        self._bot = bot
         self._info = info
         self._board = range(1, 26)
         self._url = (None, None)
@@ -48,11 +66,11 @@ class SMBGame(object):
             if guess not in self._board:
                 raise SMBError(3, 'invalid guess')
 
-        r = requests.post('https://www.satoshimines.com/action/checkboard.php', data={
+        r = self._bot.post('action/checkboard.php', {
             'game_hash': self._info['game_hash'],
             'guess': guess,
             'v04': 1
-        }).json()
+        })
 
         if r['status'] != 'success':
             raise SMBError(99, r)
@@ -61,9 +79,9 @@ class SMBGame(object):
         return r
 
     def cashout(self):
-        r = requests.post('https://www.satoshimines.com/action/cashout.php', data={
+        r = self._bot.post('action/cashout.php', {
             'game_hash': self._info['game_hash'],
-        }).json()
+        })
 
         if r['status'] != 'success':
             raise SMBError(99, r)
