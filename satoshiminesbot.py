@@ -18,6 +18,7 @@ class SMB(object):
         self.balance = int(re.findall('<span class="num" title=".*?">([0-9,]+)</span>', r)[0].replace(',', ''))
 
     def new_game(self, bits_bet, num_mines):
+        bits_bet = int(bits_bet)
         if not (30 <= bits_bet <= 1000000):
             raise SMBError(1, 'invalid bet')
         if num_mines not in [1, 3, 5, 24]:
