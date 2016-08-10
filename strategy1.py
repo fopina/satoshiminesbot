@@ -71,7 +71,8 @@ def main(player_hash, initial_balance=0):
                     balance -= bet
                     losses += 1
                     print('- %s bits - BAL: %d - %s' % (bet, balance, g.url()))
-                    bet = bet * MULTIPLIER + 1
+                    # also cover previously lost bet (if this is not initial bet)
+                    bet = bet * MULTIPLIER + (1 if bet == INITIAL_BET else bet)
                     done = False
                     break
                 elif f['outcome'] == 'bitcoins':
