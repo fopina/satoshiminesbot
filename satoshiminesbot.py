@@ -3,15 +3,17 @@
 import requests
 from decimal import Decimal
 from random import choice
+import hashlib
 import re
 
 
 class SMB(object):
-    def __init__(self, player_hash):
+    def __init__(self, player_hash, validate_secret_hash=True):
         self._hash = player_hash
         self._game = None
         self.balance = 0
         self.refresh_balance()
+        self._validate = validate_secret_hash
 
     def refresh_balance(self):
         r = self.get('play/%s/' % self._hash, to_json=False)
@@ -32,7 +34,7 @@ class SMB(object):
         })
         if r['status'] != 'success':
             raise SMBError(99, r)
-        return SMBGame(self, r)
+        return SMBGame(self, r, validate_secret_hash=self._validate)
 
     def get(self, url, to_json=True):
         try:
@@ -53,11 +55,12 @@ class SMB(object):
 
 
 class SMBGame(object):
-    def __init__(self, bot, info):
+    def __init__(self, bot, info, validate_secret_hash=True):
         self._bot = bot
         self._info = info
         self._board = range(1, 26)
         self._url = (None, None)
+        self._validate = validate_secret_hash
 
     def play(self, guess=None):
         if guess is None:
@@ -76,7 +79,14 @@ class SMBGame(object):
         if r['status'] != 'success':
             raise SMBError(99, r)
 
-        self._url = (r.get('game_id'), r.get('random_string'))
+        if r.get('outcome') == 'bomb':
+            self._url = (r['game_id'], r['random_string'])
+            if self._validate:
+                if any((
+                    str(guess) not in r['bombs'].split('-'),
+                    hashlib.sha256('%s-%s' % (r['bombs'], r['random_string'])).hexdigest() != self._info['secret']
+                )):
+                    raise SMBError(4, 'invalid secret hash, complain!!!', guess, self._info, r)
         return r
 
     def cashout(self):
@@ -87,7 +97,7 @@ class SMBGame(object):
         if r['status'] != 'success':
             raise SMBError(99, r)
 
-        self._url = (r.get('game_id'), r.get('random_string'))
+        self._url = (r['game_id'], r['random_string'])
         return r
 
     def url(self):
