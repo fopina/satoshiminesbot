@@ -58,6 +58,7 @@ def main(player_hash, initial_balance=0):
                 print('- %s bits - BAL: %d - %s' % (bet, balance, g.url()))
                 # go back to the CRAZY bet
                 bet = INITIAL_BET
+		bits2bet = 0
                 done = False
             elif f['outcome'] == 'bitcoins':
                 bits2bet += int(f['change'] * 1000000) - 1
